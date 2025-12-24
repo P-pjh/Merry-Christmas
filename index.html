@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Merry-Christmas</title>
+
+<style>
+/* ================= 基础 ================= */
+body {
+    margin: 0;
+    height: 100vh;
+    font-family: 'Dancing Script', cursive;
+    overflow: hidden;
+    background: #000;
+}
+
+.banner {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    opacity: 0;
+    transform: scale(1.02);
+    transition: opacity 1.2s ease, transform 1.2s ease;
+}
+
+.banner.show {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.banner video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+}
+
+/* ================= 字体 ================= */
+@font-face {
+    font-family: 'Dancing Script';
+    font-weight: 700;
+    src: url('program/fonts/dancing-script-v29-latin-700.woff2') format('woff2');
+}
+@font-face {
+    font-family: 'Dancing Script';
+    font-weight: 400;
+    font-style: italic;
+    src: url('program/fonts/dancing-script-v29-latin-regular.woff2') format('woff2');
+}
+
+/* ================= 主文字 ================= */
+.merry-christmas,
+.signature,
+.sign {
+    opacity: 0;
+    visibility: hidden;
+    z-index: 3;
+}
+
+.merry-christmas {
+    position: absolute;
+    top: 37.5%;
+    left: 10%;
+    font-size: 3.5em;
+    font-weight: 700;
+    color: white;
+    z-index: 3;
+    text-shadow: 0 0 16px rgba(255,255,255,0.8);
+}
+
+.signature {
+    position: absolute;
+    top: 47%;
+    left: 14%;
+    font-size: 2.8em;
+    font-weight: 400;
+    font-style: italic;
+    color: white;
+    z-index: 5;
+    text-shadow:
+        0 0 10px rgba(255,255,255,1),
+        0 0 20px rgba(255,255,255,0.9);
+}
+
+.sign {
+    position: absolute;
+    top: 48.5%;
+    left: 27.2%;
+    font-size: 2.0em;
+    font-weight: 700;
+    color: white;
+    z-index: 5;
+    text-shadow: 0 0 16px rgba(255,255,255,0.8);
+}
+
+/* ================= 文字动画 ================= */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.animate-in {
+    visibility: visible;
+    animation: fadeIn 2s ease forwards;
+}
+
+.animate-in.merry-christmas { animation-duration: 2.5s; animation-delay: 0.2s; }
+.animate-in.signature,
+.animate-in.sign { animation-duration: 2s; animation-delay: 1.5s; }
+
+/* ================= 毛玻璃遮罩 ================= */
+.text-mask, .name-mask {
+    position: absolute;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 10px;
+    z-index: 2;
+    opacity: 1;  /* 遮罩初始可见 */
+    visibility: visible;
+}
+
+.text-mask { top: 38%; left: 10%; width: 21%; height: 9%; }
+.name-mask { top: 50%; left: 14%; width: 15%; height: 4%; }
+
+/* ================= 启动屏 ================= */
+.start-screen {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg,#fff9fb,#ffebf5);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    cursor: pointer;
+    transition: opacity 0.9s ease, transform 0.9s ease, filter 0.9s ease;
+}
+
+.start-screen.fade-out {
+    opacity: 0;
+    transform: scale(1.06);
+    filter: blur(10px);
+    pointer-events: none;
+}
+
+.start-title {
+    font-size: 5em;
+    font-weight: 700;
+    transform: translateY(-60px);
+    color: #e91e63;
+    text-shadow: 0 0 20px rgba(255,182,193,0.7);
+}
+
+.start-hint {
+    font-size: 2.4em;
+    color: #f50d6e;
+    opacity: 0.85;
+    animation: pulse 1.5s ease-in-out infinite;
+    text-align: center;
+}
+
+/* 呼吸闪烁动画 */
+@keyframes pulse {
+    0%,100% { opacity: 0.6; transform: scale(1); }
+    25% { opacity: 1; transform: scale(1.05); }
+    50% { opacity: 0.6; transform: scale(1); }
+    75% { opacity: 1; transform: scale(1.05); }
+}
+
+/* ================= 雪花爆散 ================= */
+#snowBurst {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 10000;
+}
+
+.snowflake {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    font-size: 18px;
+    opacity: 0.95;
+
+    background: linear-gradient(
+        135deg,
+        #ffffff 0%,
+        #ffd6e8 40%,
+        #ffe6b3 75%,
+        #fff2cc 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+
+    text-shadow:
+        0 0 6px rgba(255,214,232,0.9),
+        0 0 12px rgba(255,230,179,0.6);
+
+    offset-path: path(var(--path));
+    offset-rotate: auto;
+    animation: snow-bezier var(--dur) cubic-bezier(0.22,1,0.36,1) forwards;
+}
+
+@keyframes snow-bezier {
+    0% {
+        offset-distance: 0%;
+        transform: scale(0.6);
+        opacity: 1;
+    }
+    100% {
+        offset-distance: 100%;
+        transform: scale(1.2);
+        opacity: 0;
+    }
+}
+
+/* ================= 启动屏圣诞装饰 ================= */
+.decoration {
+    position: absolute;
+    font-size: 2.5em;
+    opacity: 0.9;
+    pointer-events: none;
+    filter: drop-shadow(0 0 6px rgba(255,200,200,0.5));
+}
+
+.decoration.star1     { top: 18%; justify-content: center; animation: twinkle 2.4s ease-in-out infinite; }
+.decoration.tree      { top: 80%; justify-content: center; font-size: 5em; animation: float 0s; }
+.decoration.hat       { top: 8%; left: 35%; animation: bell-swing 2.8s ease-in-out infinite; }
+.decoration.gift      { top: 8%; right: 35%; animation: bell-swing 2.8s ease-in-out infinite; }
+.decoration.deer      { top: 28%; left: 20%; animation: float 4.5s ease-in-out infinite; }
+.decoration.bell      { top: 28%; right: 20%; animation: float 4.5s ease-in-out infinite; }
+.decoration.snowman   { top: 50%; left: 27%; animation: float 4.2s ease-in-out infinite; }
+.decoration.star2     { top: 50%; right: 27%; animation: float 4.2s ease-in-out infinite; }
+.decoration.candy     { top: 70%; left: 38%; animation: bell-swing 2.8s ease-in-out infinite; }
+.decoration.ginger    { top: 70%; right: 38%; animation: bell-swing 2.8s ease-in-out infinite; }
+
+@keyframes float {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes bell-swing {
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(10deg); }
+    50% { transform: rotate(0deg); }
+    75% { transform: rotate(-10deg); }
+    100% { transform: rotate(0deg); }
+}
+
+@keyframes twinkle {
+    0%,100% { opacity: 0.6; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.2); }
+}
+
+.start-screen.fade-out .decoration {
+    opacity: 0;
+    transform: scale(1.2);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+</style>
+</head>
+
+<body>
+
+<!-- 启动屏 -->
+<div id="startScreen" class="start-screen">
+    <!-- 圣诞装饰 -->
+    <div class="decoration tree">🎄</div>
+    <div class="decoration bell">🔔</div>
+    <div class="decoration deer">🦌</div>
+    <div class="decoration gift">🎁</div>
+    <div class="decoration star1">⭐</div>
+    <div class="decoration star2">✨</div>
+    <div class="decoration snowman">⛄</div>
+    <div class="decoration candy">🍬</div>
+    <div class="decoration ginger">🍪</div>
+    <div class="decoration hat">🎅</div>
+
+    <!-- 文字 -->
+    <div class="start-title">Merry Christmas!</div>
+    <div class="start-hint">Touch here, let's surprise!!😜</div>
+</div>
+
+<!-- 雪花容器 -->
+<div id="snowBurst"></div>
+
+<!-- 主内容 -->
+<div class="banner">
+    <video loop muted playsinline preload="metadata">
+        <source src="program/video/Merry-Christmas.mp4" type="video/mp4">
+    </video>
+
+    <div class="text-mask"></div>
+    <div class="merry-christmas">Merry Christmas</div>
+
+    <div class="name-mask"></div>
+    <div class="signature">Zhao Yimin</div>
+
+    <div class="sign-mask"></div>
+    <div class="sign">∼</div>
+</div>
+
+<audio id="music1" loop preload="auto">
+    <source src="program/music/Justin.Bieber-Mistletoe.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+const startScreen = document.getElementById('startScreen');
+const banner = document.querySelector('.banner');
+const video = document.querySelector('video');
+const audio = document.getElementById('music1');
+
+// 随机动画延迟
+document.querySelectorAll('#startScreen .decoration').forEach(el => {
+    const maxDelay = 1.2; 
+    const delay = Math.random() * maxDelay;
+    el.style.animationDelay = `${delay}s`;
+});
+
+// 贝塞尔雪花爆散
+function snowBurst(count = 32) {
+    const container = document.getElementById('snowBurst');
+    const flakes = ['❄','❅','❆'];
+
+    for (let i = 0; i < count; i++) {
+        const flake = document.createElement('div');
+        flake.className = 'snowflake';
+        flake.textContent = flakes[Math.floor(Math.random() * flakes.length)];
+
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 180 + Math.random() * 220;
+        const x2 = Math.cos(angle) * dist;
+        const y2 = Math.sin(angle) * dist;
+        const cx = x2 * 0.4 + (Math.random()*80-40);
+        const cy = y2 * 0.4 + (Math.random()*80-40);
+
+        flake.style.setProperty('--path', `"M 0 0 Q ${cx} ${cy} ${x2} ${y2}"`);
+        flake.style.setProperty('--dur', `${1.1 + Math.random()*0.6}s`);
+        flake.style.fontSize = `${14 + Math.random()*18}px`;
+
+        container.appendChild(flake);
+        flake.addEventListener('animationend',()=>flake.remove());
+    }
+}
+
+startScreen.addEventListener('click', () => {
+    snowBurst(32);
+
+    startScreen.classList.add('fade-out');
+    banner.classList.add('show');
+
+    video.play();
+    audio.play();
+
+    // 延迟添加文字动画类
+    setTimeout(() => {
+        document.querySelectorAll('.merry-christmas, .signature, .sign')
+            .forEach(el => el.classList.add('animate-in'));
+    }, 100); // 延迟 100ms
+});
+</script>
+
+</body>
+</html>
